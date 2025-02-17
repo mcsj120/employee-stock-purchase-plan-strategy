@@ -1,0 +1,10 @@
+.venv
+
+**/__pycache__/
+
+# FastAPI used for API backend, but don't want to include the backend and database connections on public Github
+fastapi/*
+
+*.csv
+
+ideas.txt
