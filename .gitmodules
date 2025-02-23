@@ -1,0 +1,3 @@
+[submodule "espp_fastapi"]
+	path = espp_fastapi
+	url = git@github.com:mcsj120/espp-fastapi.git
