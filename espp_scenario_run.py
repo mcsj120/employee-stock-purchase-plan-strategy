@@ -13,7 +13,7 @@ class ESPPScenarioRun():
         self,
         scenario: np.ndarray,
         strategy: EmployeeOptions,
-        step_function: t.Callable[[EmployeeOptions, ESPPState], t.Tuple[float, float]]
+        step_function: t.Callable[[EmployeeOptions, ESPPState], float]
     ):
         self.scenario = scenario
         self.strategy = strategy
@@ -37,7 +37,7 @@ class ESPPScenarioRun():
             self.state.current_stock_price = stock_price
 
             # Compound the money that is not invested 
-            self.state.update_value_of_money_not_contributed(self.strategy.rate_of_return, self.strategy.company_stock_plan)
+            self.state.update_value_of_held_money(self.strategy.rate_of_return, self.strategy.company_stock_plan)
 
             # If the period is the end of an offering period, purchase shares
             if period != 0 and period % self.strategy.company_stock_plan.pay_periods_per_offering == 0 and self.state.dollars_ready_for_purchase != 0:
@@ -52,11 +52,12 @@ class ESPPScenarioRun():
                 # How many shares can you purchase with no limit
                 shares_purchased_in_period = self.state.dollars_ready_for_purchase / stock_purchase_price
                 leftover_cash = 0
+                shares_purchased_in_period_irs = 0
                 cap_hit_irs = False
                 cap_hit_company = False
                 # How many shares can you purchase with IRS limits
-                if (self.state.irs_purchase_value + (self.state.last_grant_price * shares_purchased_in_period)) > MAX_PRICE_IRS:
-                    shares_purchased_in_period_irs = (MAX_PRICE_IRS - self.state.irs_purchase_value) / self.state.last_grant_price
+                if (self.state.irs_purchased_value + (self.state.last_grant_price * shares_purchased_in_period)) > MAX_PRICE_IRS:
+                    shares_purchased_in_period_irs = (MAX_PRICE_IRS - self.state.irs_purchased_value) / self.state.last_grant_price
                     leftover_cash_irs = self.state.dollars_ready_for_purchase - (shares_purchased_in_period_irs * stock_purchase_price)
                     cap_hit_irs = True
                 # How many shares can you purchase with Stock limits
@@ -90,24 +91,26 @@ class ESPPScenarioRun():
             if period % self.strategy.company_stock_plan.pay_periods_per_offering == 0:
                 self.state.last_grant_price = stock_price
 
-            contribution, uninvested_money = self.step_function(
+            contribution = self.step_function(
                 self.strategy,
                 self.state
             )
+            uninvested_money = self.strategy.max_contribution - contribution
 
             self.state.update_contributions_and_uninvested(contribution, uninvested_money)
 
+        espp_net_value = (self.state.espp_dollar_value - (self.state.total_contributed)) if self.state.total_contributed != 0 else 0
+        # Subtract 1 from the period to have the proper amount contributed
         return ESPPResult(
-            baseline_value=self.strategy.max_contribution * self.state.total_periods,
-            money_contributed=self.state.total_contributed,
-            money_refunded=self.state.money_refunded,
-            total_value=self.state.espp_dollar_value + self.state.value_of_money_not_contributed,
-            roi=((1 - self.strategy.capital_gains_tax_rate) * (self.state.espp_dollar_value - self.state.total_contributed)) / self.state.total_contributed
+            baseline_value=[self.strategy.max_contribution * (self.state.total_periods - 1)],
+            money_contributed=[sum(self.state.contributions)],
+            money_refunded=[self.state.money_refunded],
+            total_value=[self.state.value_of_held_money - (self.strategy.capital_gains_tax_rate * espp_net_value)],
+            roi=[
+                (
+                self.state.value_of_held_money 
+                - (self.strategy.max_contribution * (self.state.total_periods - 1))
+                - (self.strategy.capital_gains_tax_rate * espp_net_value)
+                ) / (self.strategy.max_contribution * (self.state.total_periods - 1))
+            ]
         )
-
-        # print("money_not_contributed", money_not_contributed)
-        # print("value_of_money_not_contributed", value_of_money_not_contributed)
-        # print("total_contributed", total_contributed)
-        # print("espp_value", espp_dollar_value)
-        # print("total value", espp_dollar_value + value_of_money_not_contributed)
-
