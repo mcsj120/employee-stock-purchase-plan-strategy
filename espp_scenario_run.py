@@ -4,7 +4,7 @@ import typing as t
 import numpy as np
 
 from constants import MAX_PRICE_IRS
-from espp_state import ESPPState
+from models.espp_state import ESPPState
 from models.employee_options import EmployeeOptions
 from models.espp_result import ESPPResult
 
@@ -100,11 +100,12 @@ class ESPPScenarioRun():
             self.state.update_contributions_and_uninvested(contribution, uninvested_money)
 
         espp_net_value = (self.state.espp_dollar_value - (self.state.total_contributed)) if self.state.total_contributed != 0 else 0
-        # Subtract 1 from the period to have the proper amount contributed
+       # Subtract 1 from the period to have the proper amount contributed
         return ESPPResult(
             baseline_value=[self.strategy.max_contribution * (self.state.total_periods - 1)],
             money_contributed=[sum(self.state.contributions)],
             money_refunded=[self.state.money_refunded],
+            espp_return=[espp_net_value/(self.state.total_contributed) if self.state.total_contributed > 0 else 0],
             total_value=[self.state.value_of_held_money - (self.strategy.capital_gains_tax_rate * espp_net_value)],
             roi=[
                 (

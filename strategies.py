@@ -3,13 +3,75 @@ import math
 from scipy.stats import norm
 
 from constants import MAX_PRICE_IRS
-from espp_state import ESPPState
+from models.espp_state import ESPPState
 from models.employee_options import EmployeeOptions
+
+def get_all_strategies():
+    return [
+        {
+            "name": "No contribution to ESPP",
+            "strategy": no_contribution,
+            "description": "This plan doesn't contribute any money to the ESPP."
+        },
+        {
+            "name": "Max contribution to ESPP with company blocking overpayment",
+            "strategy": max_all_the_way_company_hard_block,
+            "description": "Contributes max possible each period; company limits contributions once cap hits."
+        },
+        {
+            "name": "Max contribution to ESPP with IRS blocking overpayment",
+            "strategy": max_all_the_way_irs_hard_block,
+            "description": "Contributes max possible each period; IRS limits contributions once cap hits."
+        },
+        {
+            "name": "Max contribution to ESPP with company and IRS blocking overpayment",
+            "strategy": max_both_hard_block,
+            "description": "Contributes max possible each period; company and IRS limit contributions once cap hits."
+        },
+        {
+            "name": "Proportioned max contribution to ESPP with company blocking overpayment",
+            "strategy": proportioned_max_all_the_way_company_hard_block,
+            "description": "Contributes evenly each period to reduce overpayment risk; company limits contributions."
+        },
+        {
+            "name": "Proportioned max contribution to ESPP with company and IRS blocking overpayment",
+            "strategy": proportioned_max_both_hard_block,
+            "description": "Contributes evenly each period to reduce overpayment risk; company and IRS limit contributions."
+        },
+        {
+            "name": "Reduce IRS overpayment risk",
+            "strategy": reduce_irs_over_risk,
+            "description": "Averages contributions per period per IRS rules; stops when company limit is hit."
+        },
+        {
+            "name": "Readjust halfway through the offering period",
+            "strategy": readjust_halfway,
+            "description": "Contributes max first 3 periods; readjusts if stock price drops by 15% halfway through."
+        },
+        {
+            "name": "Maximize for large periods",
+            "strategy": maximize_for_large_periods,
+            "description": "Implements a strategy that attempts to maximize contributions in high performing periods."
+        }
+    ]
+
+def get_core_strategies():
+    return [
+        {
+            "name": "No contribution to ESPP",
+            "strategy": no_contribution,
+            "description": "This plan doesn't contribute any money to the ESPP."
+        },
+        {
+            "name": "Max contribution to ESPP with company and IRS blocking overpayment",
+            "strategy": max_both_hard_block,
+            "description": "Contributes max possible each period; company and IRS limit contributions once cap hits."
+        }
+    ]
 
 def no_contribution(strategy: EmployeeOptions, state: ESPPState):
     """
-        This plan is to contribute the maximum amount possible in each offering period, without regard for company limits
-            or IRS limits.
+        This plan doesn't contribute any money to the ESPP.
     """
     return 0
 

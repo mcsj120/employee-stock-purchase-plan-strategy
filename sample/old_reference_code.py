@@ -74,3 +74,10 @@ def calculate_maximum_contribution_in_last_period(
         paycheck_contributions = max_irs_contributions/company_stock_plan.pay_periods_per_offering
 
     print(f"The limiting factor is {limiting_factor}, and you can contribute {paycheck_contributions} per paycheck, for a total contribution of {max_total_contributions}")
+
+
+print(f'The baseline value for scenario {function_name} is {running_ESPPResult.baseline_value_sum/len(prices)}')
+print(f'The average total value for the espp plan for scenario {function_name} is {running_ESPPResult.total_value_sum/len(prices)}')
+print(f'The average money_contributed for the espp plan for scenario {function_name} is {running_ESPPResult.money_contributed_sum/len(prices)}')
+print(f'The average roi for the espp plan for scenario {function_name} is {running_ESPPResult.roi_sum/len(prices)}')
+print(f'The average money refunded for the espp plan for scenario {function_name} is {running_ESPPResult.money_refunded_sum/len(prices)}')

@@ -4,16 +4,23 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
-            "name": "Python Debugger: Stock Price",
+            "name": "Python Debugger: Generate Stock Price",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "sample/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "name": "Python Debugger: Generate ESPP results",
             "type": "debugpy",
             "request": "launch",
             "program": "sample/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "args": [
-                "prices_CVS_20250119_140005.csv"
+                "prices_CVS_20250404_143046.csv"
             ]
         },
         {

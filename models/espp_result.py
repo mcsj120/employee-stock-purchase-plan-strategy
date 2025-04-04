@@ -13,19 +13,21 @@ class ESPPResult:
     money_contributed represents the sum of money that was contributed to the ESPP plan.
     roi represents the return on investment of the ESPP plan including the liquidity preference rate and capital gains tax rate.
     money_refunded represents the sum of money that was refunded from the ESPP plan because too much money was contributed.
+    espp_return represents the return on investment of the ESPP plan excluding the liquidity preference rate and capital gains tax rate.
     """
     baseline_value_sum: float = 0.0
     total_value_sum: float = 0.0
     money_contributed_sum: float = 0.0
     roi_sum: float = 0.0
     money_refunded_sum: float = 0.0
+    espp_return_sum: float = 0.0
 
     baseline_value: list[float] = field(default_factory=list)
     total_value: list[float] = field(default_factory=list)
     money_contributed: list[float] = field(default_factory=list)
     roi: list[float] = field(default_factory=list)
     money_refunded: list[float] = field(default_factory=list)
-    
+    espp_return: list[float] = field(default_factory=list)
 
     def add(self, other: 'ESPPResult'): 
         self.baseline_value_sum += sum(other.baseline_value)
@@ -33,9 +35,11 @@ class ESPPResult:
         self.money_contributed_sum += sum(other.money_contributed)
         self.roi_sum += sum(other.roi)
         self.money_refunded_sum += sum(other.money_refunded)
+        self.espp_return_sum += sum(other.espp_return)
 
         self.baseline_value.extend(other.baseline_value)
         self.total_value.extend(other.total_value)
         self.money_contributed.extend(other.money_contributed)
         self.roi.extend(other.roi)
         self.money_refunded.extend(other.money_refunded)
+        self.espp_return.extend(other.espp_return)
