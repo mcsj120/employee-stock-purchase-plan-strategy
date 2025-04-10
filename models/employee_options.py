@@ -8,8 +8,9 @@ class EmployeeOptions:
         company_stock_parameters: CompanyStockStartParameters,
         max_contribution,
         steps_to_zero: int,
-        liquidity_preference_rate: float,
-        capital_gains_tax_rate: float,
+        liquidity_preference_rate: float=0,
+        capital_gains_tax_rate: float=0,
+        ignore_liquidity_preference: bool=False,
         default_to_max_allowed=False
     ):
         """
@@ -19,6 +20,10 @@ class EmployeeOptions:
 
             capital_gains_tax_rate is the tax rate for capital gains. For ease of use,
             it is not applied to the liquidity preference rate.
+
+            ignore_liquidity_preference means calculations should be done not taking liquidity preference into account.
+            This means that if you accidentally tie up money in the ESPP, the strategy ROI will not be penalized.
+            This can be useful for seeing the true ESPP ROI
             
 
             Parameters to add:
@@ -33,4 +38,6 @@ class EmployeeOptions:
         self.steps_to_zero = steps_to_zero
         self.rate_of_return = liquidity_preference_rate
         self.capital_gains_tax_rate = capital_gains_tax_rate
+        self.ignore_liquidity_preference = ignore_liquidity_preference
+        self.default_to_max_allowed = default_to_max_allowed
 

@@ -92,7 +92,7 @@ def generate_scenarios(
     for t in range(1, steps + 1):
         # potential to enhance: https://medium.com/@polanitzer/forward-looking-monte-carlo-simulation-predict-the-future-value-of-equity-using-the-lognormal-f54320f9c230
         # "This process produces log-normally distributed prices, because it exponentiates normally distributed returns."
-        z = np.random.normal(simulations)  # random variable
+        z = np.random.standard_normal(simulations)  # random variable
         # Monte Carlo formula: S(t+1) = S(t) * exp((r - 0.5 * sigma^2) * dt + sigma * sqrt(dt) * z)
         prices[:, t] = (
             prices[:, t - 1] *

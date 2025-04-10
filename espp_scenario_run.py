@@ -37,17 +37,20 @@ class ESPPScenarioRun():
             self.state.current_stock_price = stock_price
 
             # Compound the money that is not invested 
-            self.state.update_value_of_held_money(self.strategy.rate_of_return, self.strategy.company_stock_plan)
+            self.state.update_value_of_held_money(self.strategy.rate_of_return, self.strategy)
 
             # If the period is the end of an offering period, purchase shares
             if period != 0 and period % self.strategy.company_stock_plan.pay_periods_per_offering == 0 and self.state.dollars_ready_for_purchase != 0:
                 # Stock purchase price = floor of current price, price at the beginning of the offering period
-                stock_purchase_price = (
-                    min(
-                        stock_price,
-                        self.state.last_grant_price
-                    ) * self.strategy.company_stock_plan.discount_rate
-                )
+                if self.strategy.company_stock_plan.allows_lookback:
+                    stock_purchase_price = (
+                        min(
+                            stock_price,
+                            self.state.last_grant_price
+                        ) * self.strategy.company_stock_plan.discount_rate
+                    )
+                else:
+                    stock_purchase_price = stock_price * self.strategy.company_stock_plan.discount_rate
 
                 # How many shares can you purchase with no limit
                 shares_purchased_in_period = self.state.dollars_ready_for_purchase / stock_purchase_price
@@ -81,7 +84,7 @@ class ESPPScenarioRun():
                     shares_purchased_in_period = shares_purchased_in_period_company
                     leftover_cash = leftover_cash_company
 
-                self.state.update_stock_values_after_purchase(shares_purchased_in_period, leftover_cash, stock_price)
+                self.state.update_stock_values_after_purchase(shares_purchased_in_period, leftover_cash, stock_price, self.strategy)
                     
             # break out of loop once the last purchase has occured
             if period == len(self.scenario) - 1:
@@ -97,9 +100,12 @@ class ESPPScenarioRun():
             )
             uninvested_money = self.strategy.max_contribution - contribution
 
-            self.state.update_contributions_and_uninvested(contribution, uninvested_money)
+            self.state.update_contributions_and_uninvested(contribution, uninvested_money, self.strategy)
 
         espp_net_value = (self.state.espp_dollar_value - (self.state.total_contributed)) if self.state.total_contributed != 0 else 0
+
+        roi_denominator = self.strategy.max_contribution * (self.state.total_periods - 1) if not self.strategy.ignore_liquidity_preference else self.state.total_contributed
+
        # Subtract 1 from the period to have the proper amount contributed
         return ESPPResult(
             baseline_value=[self.strategy.max_contribution * (self.state.total_periods - 1)],
@@ -110,8 +116,8 @@ class ESPPScenarioRun():
             roi=[
                 (
                 self.state.value_of_held_money 
-                - (self.strategy.max_contribution * (self.state.total_periods - 1))
+                - roi_denominator
                 - (self.strategy.capital_gains_tax_rate * espp_net_value)
-                ) / (self.strategy.max_contribution * (self.state.total_periods - 1))
+                ) / roi_denominator if roi_denominator != 0 else 0
             ]
         )

@@ -8,5 +8,6 @@ cvs_employee_options = EmployeeOptions(
     max_contribution=1000,
     steps_to_zero=0,
     liquidity_preference_rate=0.05,
+    ignore_liquidity_preference=False,
     capital_gains_tax_rate=0.15
 )

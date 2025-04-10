@@ -69,6 +69,40 @@ def get_core_strategies():
         }
     ]
 
+def get_no_lookback_strategies():
+    return [
+        {
+            "name": "No contribution to ESPP",
+            "strategy": no_contribution,
+            "description": "This plan doesn't contribute any money to the ESPP."
+        },
+        {
+            "name": "Max contribution to ESPP with company blocking overpayment",
+            "strategy": max_all_the_way_company_hard_block,
+            "description": "Contributes max possible each period; company limits contributions once cap hits."
+        },
+        {
+            "name": "Max contribution to ESPP with IRS blocking overpayment",
+            "strategy": max_all_the_way_irs_hard_block,
+            "description": "Contributes max possible each period; IRS limits contributions once cap hits."
+        },
+        {
+            "name": "Max contribution to ESPP with company and IRS blocking overpayment",
+            "strategy": max_both_hard_block,
+            "description": "Contributes max possible each period; company and IRS limit contributions once cap hits."
+        },
+        {
+            "name": "Proportioned max contribution to ESPP with company blocking overpayment",
+            "strategy": proportioned_max_all_the_way_company_hard_block,
+            "description": "Contributes evenly each period to reduce overpayment risk; company limits contributions."
+        },
+        {
+            "name": "Proportioned max contribution to ESPP with company and IRS blocking overpayment",
+            "strategy": proportioned_max_both_hard_block,
+            "description": "Contributes evenly each period to reduce overpayment risk; company and IRS limit contributions."
+        },
+    ]
+
 def no_contribution(strategy: EmployeeOptions, state: ESPPState):
     """
         This plan doesn't contribute any money to the ESPP.
